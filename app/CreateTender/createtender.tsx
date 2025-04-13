@@ -2,29 +2,54 @@ import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "reac
 import '../../global.css'
 import { useState } from "react";
 import TextInp from "@/components/TextInp";
-import { Feather } from '@expo/vector-icons';
-import { AsyncStorage } from "@react-native-async-storage/async-storage"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Platform } from 'react-native';
+
+
+interface TenderProps {
+  name: any,
+  description: string,
+  startTime: string,
+  endTime: string,
+  bufferTime: number
+}
+
 
 export default function CreateTender() {
 
-  const [tender, setTender] = useState({
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+
+  // Functions to handle time selection
+  const onStartTimeChange = (event: any, selectedTime?: Date) => {
+    setShowStartPicker(Platform.OS === 'ios'); // keep open on iOS
+    if (selectedTime) {
+      const timeString = selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      handleChange('startTime', timeString);
+    }
+  };
+
+  const onEndTimeChange = (event: any, selectedTime?: Date) => {
+    setShowEndPicker(Platform.OS === 'ios');
+    if (selectedTime) {
+      const timeString = selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      handleChange('endTime', timeString);
+    }
+  };
+
+
+
+  const [tender, setTender] = useState<TenderProps>({
     name: '',
     description: '',
     startTime: '',
     endTime: '',
-    bufferTime: '',
-  });
-
-  const [bidding, setBidding] = useState({
-    companyName: '',
-    bid: '',
+    bufferTime: 0,
   });
 
   const handleChange = (field: string, value: any) => {
     setTender({ ...tender, [field]: value });
-  };
-  const handleBidChange = (field: string, value: any) => {
-    setBidding({ ...bidding, [field]: value });
   };
 
   const saveTender = async () => {
@@ -61,18 +86,48 @@ export default function CreateTender() {
             onChangeText={(v) => handleChange('description', v)}
             className={inputStyle}
           />
-          <TextInp
-            name={"Start Time"}
-            value={tender.startTime}
-            onChangeText={(v) => handleChange('startTime', v)}
-            className={inputStyle}
-          />
-          <TextInp
-            name={"End Time"}
-            value={tender.endTime}
-            onChangeText={(v) => handleChange('endTime', v)}
-            className={inputStyle}
-          />
+          <View>
+            <Text className="text-gray-300 mb-1">Start Time</Text>
+            <TouchableOpacity
+              onPress={() => setShowStartPicker(true)}
+              className={inputStyle}
+            >
+              <Text className="text-gray-300">
+                {tender.startTime || 'Select Start Time'}
+              </Text>
+            </TouchableOpacity>
+            {showStartPicker && (
+              <DateTimePicker
+                mode="time"
+                value={new Date()}
+                is24Hour={true}
+                display="default"
+                onChange={onStartTimeChange}
+              />
+            )}
+          </View>
+
+          {/* End Time Picker */}
+          <View>
+            <Text className="text-gray-300 mb-1">End Time</Text>
+            <TouchableOpacity
+              onPress={() => setShowEndPicker(true)}
+              className={inputStyle}
+            >
+              <Text className="text-gray-300">
+                {tender.endTime || 'Select End Time'}
+              </Text>
+            </TouchableOpacity>
+            {showEndPicker && (
+              <DateTimePicker
+                mode="time"
+                value={new Date()}
+                is24Hour={true}
+                display="default"
+                onChange={onEndTimeChange}
+              />
+            )}
+          </View>
           <TextInp
             name={"Buffer Time (minutes)"}
             value={tender.bufferTime}
@@ -80,46 +135,11 @@ export default function CreateTender() {
             className={inputStyle}
           />
           <TouchableOpacity className="bg-rose-600 text-text_prm py-3 px-3 text-center rounded-lg font-semibold w-full">
-            <Text className="text-text_prm text-center font-semibold">Submit</Text>
+            <Text className="text-text_prm text-center font-semibold" onPress={saveTender}>Submit</Text>
           </TouchableOpacity>
         </View>
 
-        <View className="p-4 flex flex-col justify-center w-full gap-2 shadow shadow-white bg-zinc-900 rounded-lg">
-          <Text className="text-gray-300 font-bold text-xl">Available Tenders</Text>
-          <View className="flex flex-col w-full gap-4">
-            <Text className="text-3xl text-white">Build Pipeline</Text>
-            <View className="flex items-center justify-center gap-4 w-full">
-              <View className="flex flex-row w-full justify-around gap-6">
-                <Text className="text-gray-200">Something</Text>
-                <Text className="text-gray-200">Something</Text>
-              </View>
-              <View className="w-full flex flex-row justify-around gap-6">
-                <Text className="text-gray-200">Something</Text>
-                <Text className="text-gray-200">Something</Text>
-              </View>
-            </View>
-            <TextInp
-              name="Company Name"
-              value={bidding.companyName}
-              onChangeText={(val) => handleBidChange('companyName', val)}
-              className={inputStyle}
-            />
-            <TextInp
-              name="Bid Cost"
-              value={bidding.bid}
-              onChangeText={(val) => handleBidChange('bid', val)}
-              className={inputStyle}
-            />
-            <TouchableOpacity className="bg-rose-600 text-text_prm py-3 px-3 text-center rounded-lg font-semibold w-full">
-              <Text className="text-text_prm text-center font-semibold" onPress={saveTender}>Submit</Text>
-            </TouchableOpacity>
-            <View className="py-2 px-4 w-2/3 mx-auto flex flex-row justify-center gap-4 bg-rose-600/20 border border-rose-200 rounded-xl">
-                <Feather name="dollar-sign" size={20} color='#f9a8d4'/>
-                <Text className="text-gray-200 font-semibold">A bid has been placed.</Text>
-            </View>
-          </View>
 
-        </View>
       </View>
     </ScrollView>
   );

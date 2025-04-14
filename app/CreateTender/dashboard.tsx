@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { TenderProps } from './createtender';
 
 export default function Dashboard() {
   const [tenders, setTenders] = useState([]);
@@ -33,7 +34,7 @@ export default function Dashboard() {
 
       <FlatList
         data={tenders}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item:TenderProps) => item.id}
         ListEmptyComponent={
           <Text className="text-white text-center">No tenders available.</Text>
         }

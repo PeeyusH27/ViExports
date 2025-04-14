@@ -7,15 +7,22 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform } from 'react-native';
 
 
-interface TenderProps {
+export interface TenderProps {
+  id?: any,
   name: any,
   description: string,
   startTime: string,
   endTime: string,
-  bufferTime: number
+  bufferTime: string,
+  bids?: TenderBidsProps[]
 }
 
-
+export interface TenderBidsProps {
+  companyName: string,
+  bidCost: number | any,
+  bidTime: any,
+  tenderEnd?: any
+}
 export default function CreateTender() {
 
   const [showStartPicker, setShowStartPicker] = useState(false);
@@ -45,7 +52,7 @@ export default function CreateTender() {
     description: '',
     startTime: '',
     endTime: '',
-    bufferTime: 0,
+    bufferTime: '',
   });
 
   const handleChange = (field: string, value: any) => {
